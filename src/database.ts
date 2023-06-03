@@ -1,21 +1,23 @@
-import dotenv from "dotenv";
-import { Pool } from "pg";
+import { Pool } from 'pg'
 
-dotenv.config();
-"SET ENV=dev"
+require('dotenv').config();
 
 const {
-    POSTGRES_HOST,
-    POSTGRES_DB,
-    POSTGRES_TEST_DB,
-    ENV,
-    POSTGRES_USER,
-    POSTGRES_PASSWORD,
-} = process.env;
+  POSTGRES_HOST,
+  POSTGRES_DB,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_TEST_DB,
+  ENV,
+} = process.env
 
-let postgresDB = POSTGRES_DB;
-if (ENV === "test") {
+let postgresDB : string | undefined = "";
+
+if((ENV || '').trim() === 'test') {
     postgresDB = POSTGRES_TEST_DB;
+}
+else if((ENV || '').trim() === 'dev') {
+    postgresDB = POSTGRES_DB;
 }
 
 const client = new Pool({

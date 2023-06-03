@@ -1,7 +1,7 @@
 import client from "../database";
 
 export type Weapon = {
-    id: Number;
+    id?: Number;
     name: String;
     type: string;
     weight: number;
@@ -49,13 +49,13 @@ export class MythicalWeaponStore {
         }
     }
 
-    async delete(id: string): Promise<Weapon> {
+    async delete(id: string): Promise<number> {
         try {
             const sql = "DELETE FROM mythical_weapons WHERE id=($1)";
             // @ts-ignore
             const conn = await client.connect();
             const result = await conn.query(sql, [id]);
-            const weapon = result.rows[0];
+            const weapon = result.rowCount;
             conn.release();
             return weapon;
         } catch (err) {
