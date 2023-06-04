@@ -55,6 +55,24 @@ export class UserStore {
         }
     }
 
+    async update(u: User): Promise<User> {
+        try {
+            // @ts-ignore
+            const conn = await client.connect();
+            const sql =
+                "UPDATE users set username = ($2), password_digest= ($3) WHERE id = ($1) RETURNING *";
+            const hash = bcrypt.hashSync(u.password + pepper, parseInt(saltRounds));
+
+            const result = await conn.query(sql, [u.username, hash]);
+            const user = result.rows[0];
+            conn.release();
+
+            return user;
+        } catch (err) {
+            throw new Error(`Could not add new users ${u.username}. Error: ${err}`);
+        }
+    }
+
     async delete(id: string): Promise<number> {
         try {
             const sql = "DELETE FROM users WHERE id=($1)";

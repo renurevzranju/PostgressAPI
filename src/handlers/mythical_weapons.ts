@@ -1,7 +1,9 @@
 import express, { Response, Request } from "express";
 import { Weapon, MythicalWeaponStore } from "../models/mythical_weapon";
+import jwt from "jsonwebtoken";
 
 const store = new MythicalWeaponStore();
+const token_secret = process.env.TOKEN_SECRET || "";
 
 const index = async (_req: Request, res: Response) => {
   const weapons = await store.index();
@@ -14,13 +16,18 @@ const show = async (req: Request, res: Response) => {
 };
 
 const create = async (req: Request, res: Response) => {
+  const weapon : Weapon = {
+    name: req.body.name,
+    type: req.body.type,
+    weight: req.body.weight
+  };
   try {
-    const weapon : Weapon = {
-      name: req.body.name,
-      type: req.body.type,
-      weight: req.body.weight
-    };
-
+    console.log(req.body.token);
+    jwt.verify(req.body.token, token_secret);
+  } catch (err) {
+    return res.status(401).json(`Invalid Token": ${err}`);
+  }
+  try {
     const newWeapon = await store.create(weapon);
     res.json(newWeapon);
   } catch (err) {
